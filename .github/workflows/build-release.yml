@@ -53,8 +53,8 @@ env:
   REPO_BRANCH: openwrt-24.10-6.6
   FEEDS_CONF: philips-hy3000/feeds.conf.default
   CONFIG_FILE: philips-hy3000/philips-hy3000.config
-  DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
+  DIY_P1_SH: philips-hy3000/diy-part1.sh
+  DIY_P2_SH: philips-hy3000/diy-part2.sh
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
