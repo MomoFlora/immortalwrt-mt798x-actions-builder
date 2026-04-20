@@ -134,9 +134,32 @@ jobs:
         sudo mkdir -p /builder
         sudo mount /dev/github/runner /builder
         sudo chown -R runner:runner /builder
-        df -Th
   
+    - name: 下载固件源码
+      working-directory: /builder
+      run: |
+        df -hT $PWD
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        ln -sf /builder/openwrt $GITHUB_WORKSPACE/openwrt
 
+    - name: 加载 feeds.conf.default & DIY_P1_SH
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
+
+    - name: 更新 & 安装 feeds
+      run: |
+        cd openwrt
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: DIY_P2_SH
+      run: |
+        chmod +x $DIY_P2_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P2_SH
         
 
 
