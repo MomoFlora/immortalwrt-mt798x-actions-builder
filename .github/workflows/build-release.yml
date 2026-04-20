@@ -57,7 +57,7 @@ env:
   REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
   REPO_BRANCH: openwrt-24.10-6.6
   FEEDS_CONF: ${{ github.event.inputs.DEVICE }}/feeds.conf.default
-  CONFIG_FILE: ${{ github.event.inputs.DEVICE }}/philips-hy3000.config
+  CONFIG_FILE: ${{ github.event.inputs.DEVICE }}/${{ github.event.inputs.DEVICE }}.config
   DIY_P1_SH: ${{ github.event.inputs.DEVICE }}/diy-part1.sh
   DIY_P2_SH: ${{ github.event.inputs.DEVICE }}/diy-part2.sh
   CACHE_TOOLCHAIN: true
