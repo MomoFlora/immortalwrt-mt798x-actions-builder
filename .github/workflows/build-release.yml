@@ -55,8 +55,8 @@ env:
   CONFIG_FILE: philips-hy3000/philips-hy3000.config
   DIY_P1_SH: philips-hy3000/diy-part1.sh
   DIY_P2_SH: philips-hy3000/diy-part2.sh
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
+  CACHE_TOOLCHAIN: true
+  FIRMWARE_RELEASE: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -155,11 +155,127 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: DIY_P2_SH
+    - name: 加载自定义配置
       run: |
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
+
+    - name: 设置主机名 （路由器名称）
+      run: |
+        cd openwrt
+
+        SET_HOST="${{ github.event.inputs.HOST_NAME }}"
+
+        # 简单校验（只允许字母数字和-）
+        if [[ "$SET_HOST" =~ ^[a-zA-Z0-9\-]+$ ]]; then
+
+            echo ">>> 设置主机名: $SET_HOST"
+
+            FILE="package/base-files/files/bin/config_generate"
+
+            # 只替换 hostname 这一行（精准替换）
+            sed -i -E "s/(set system\.\@system\[-1\]\.hostname=')[^']*'/\1$SET_HOST'/g" "$FILE"
+
+            echo ">>> 主机名修改完成"
+
+        else
+            echo ">>> 主机名不合法，仅允许字母、数字、-，跳过"
+        fi     
         
+    - name: 设置 LAN IP 地址（路由器登录地址）
+      run: |
+        cd openwrt
 
+        SET_IP="${{ github.event.inputs.LAN_IP }}"
 
+        # 校验 IP
+        if [[ "$SET_IP" =~ ^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$ ]]; then
+
+            echo ">>> 设置 LAN IP: $SET_IP"
+
+            # 1. 修改默认 LAN IP（核心）
+            sed -i -E "s/(lan_ip=)192\.168\.[0-9]+\.[0-9]+/\1$SET_IP/g" \
+                package/base-files/files/bin/config_generate
+
+            # 2. 修改 LuCI 默认提示 IP（更精准定位文件）
+            LUCI_FILE="feeds/luci/modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js"
+            if [ -f "$LUCI_FILE" ]; then
+                sed -i -E "s/192\.168\.[0-9]+\.[0-9]+/$SET_IP/g" "$LUCI_FILE"
+            fi
+
+            echo ">>> LAN IP 已修改完成"
+
+        else
+            echo ">>> IP 不合法，跳过修改（保持默认 192.168.1.1）"
+        fi
+
+    - name: 设置路由器默认密码
+      run: |
+        cd openwrt
+
+        ROOT_PWD="${{ github.event.inputs.ROOT_PASSWORD }}"
+
+        if [ -n "$ROOT_PWD" ]; then
+
+            echo ">>> 设置 Root 密码"
+
+            PASSWORD_HASH=$(openssl passwd -6 "$ROOT_PWD")
+
+            sed -i -E "s|^root:[^:]*:|root:${PASSWORD_HASH}:|" \
+                package/base-files/files/etc/shadow
+
+            echo ">>> Root 密码设置完成"
+
+        else
+            echo ">>> 未设置 Root 密码，保持默认"
+        fi
+
+    - name: 下载安装包
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: 编译固件
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+
+    - name: 查看磁盘使用情况
+      if: (!cancelled())
+      run: df -hT
+
+    - name: 整理文件
+      if: steps.compile.outputs.status == 'success'
+      run: |
+        cd openwrt/bin/targets/*/*
+        cat sha256sums
+        cp openwrt/.config build.config
+        mv -f openwrt/bin/packages/*/*/*.ipk packages
+        tar -zcf Packages.tar.gz packages
+        rm -rf packages feeds.buildinfo version.buildinfo
+        echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
+        echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV  
+
+    - name: 将固件上传到 Artifact
+      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ env.SOURCE_REPO }}-firmware-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE_PATH }}
+
+    - name: 上传固件到发布版本
+      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        name: R${{ env.DATE }} for ${{ env.FIRMWARE_TAG }}
+        allowUpdates: true
+        tag: ${{ env.FIRMWARE_TAG }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: ${{ env.FIRMWARE_PATH }}/*
