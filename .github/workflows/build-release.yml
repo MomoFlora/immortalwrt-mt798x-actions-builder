@@ -25,14 +25,14 @@ on:
         default: 'x86_64'
         type: choice
         options:
-          - 'cetron_ct3003'
-          - 'cudy_tr3000-v1'
-          - 'cudy_tr3000-v1-256mb'
-          - 'clx_s20p'
-          - 'philips_hy3000'
-          - 'jdcloud_re-cp-03'
-          - 'netcore_n60-pro'
-          - 'qihoo_360t7'
+          - 'Cetron_CT3003'
+          - 'Cudy_TR3000-V1'
+          - 'Cudy_TR3000-V1-256MB'
+          - 'CLX_S20P'
+          - 'Philips_HY3000'
+          - 'JDCloud_RE-CP-03'
+          - 'Netcore_N60-PRO'
+          - 'Qihoo_360T7'
       HOST_NAME:
         description: '🏷️ 主机名称 （Host Name）'
         required: true
