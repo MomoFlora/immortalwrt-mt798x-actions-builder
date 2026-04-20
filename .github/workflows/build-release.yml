@@ -19,15 +19,6 @@ on:
 # 手动触发
   workflow_dispatch:
     inputs:
-      BUILD_MODE:
-        description: '构建模式选择（Build mode selection）'
-        required: true
-        default: 'accelerated'
-        type: choice
-        options:
-          - 'standard（普通构建）'
-          - 'accelerated（加速构建）'
-          - 'toolchain_only（仅工具链）'
       HOST_NAME:
         description: '主机名称 （Host Name）'
         required: true
