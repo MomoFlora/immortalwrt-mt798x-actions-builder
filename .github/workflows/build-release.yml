@@ -1,0 +1,65 @@
+# ===============================================================================
+# Custom Build Configuration
+# ------------------------------------------------------------------------------
+# Project   : ImmortalWrt for MT7981 (Philips HY3000)
+# Repository: https://github.com/MomoFlora/immortalwrt-mt7981-philips-hy3000
+# Maintainer: Zhao Wenwen
+#
+# Description:
+#   Customized build pipeline based on P3TERX Actions-OpenWrt,
+#   tailored for Philips HY3000 platform with MT7981 SoC.
+# ===============================================================================
+
+name: 🧩 固件编译
+
+on:
+# 远程触发按钮
+  repository_dispatch:
+    
+# 手动触发
+  workflow_dispatch:
+    inputs:
+      BUILD_MODE:
+        description: '构建模式选择（Build mode selection）'
+        required: true
+        default: 'accelerated'
+        type: choice
+        options:
+          - 'standard（普通构建）'
+          - 'accelerated（加速构建）'
+          - 'toolchain_only（仅工具链）'
+      LAN_IP:
+        description: 'LAN IP 地址 （LAN IPv4 Address）'
+        required: true
+        default: '10.0.0.1'
+        type: string
+      ROOT_PASSWORD:
+        description: 'Root 密码（Root password, optional）'
+        required: false
+        default: 'password'
+        type: string
+
+# 定时触发编译
+  schedule:
+    - cron: '0 16 1 * *'
+
+env:
+  REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
+  REPO_BRANCH: openwrt-24.10-6.6
+  FEEDS_CONF: philips-hy3000/feeds.conf.default
+  CONFIG_FILE: philips-hy3000/philips-hy3000.config
+  DIY_P1_SH: diy-part1.sh
+  DIY_P2_SH: diy-part2.sh
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+
+jobs:
+  Build:
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
+  
+
+        
+
+
