@@ -78,25 +78,27 @@ jobs:
     - name: 检查服务器性能
       run: |
         echo "════════════════════════════════════════════════════════"
-        echo "🔧 SYSTEM INFORMATION"
+        echo "🔧 系统信息"
         echo "════════════════════════════════════════════════════════"
         echo "📊 CPU:"
         echo "   $(grep 'model name' /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}')"
-        echo "   ⚡ Speed: $(grep 'cpu MHz' /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}') MHz"
-        echo "   🔢 Cores: $(grep processor /proc/cpuinfo | wc -l)"    
+        echo "   ⚡ 频率: $(grep 'cpu MHz' /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}') MHz"
+        echo "   🔢 核心数: $(grep processor /proc/cpuinfo | wc -l)"    
         echo ""
-        echo "💾 Memory:"
-        free -h | awk '/^Mem:/ {print "   Total: " $2, "| Used: " $3, "| Free: " $4}'
-        free -h | awk '/^Swap:/ {print "   Swap:  " $2, "| Used: " $3, "| Free: " $4}'    
+        echo "💾 内存:"
+        free -h | awk '/^Mem:/ {print "   总计: " $2, "| 已用: " $3, "| 空闲: " $4}'
+        free -h | awk '/^Swap:/ {print "   交换分区: " $2, "| 已用: " $3, "| 空闲: " $4}'    
         echo ""
-        echo "💿 Storage:"
+        echo "💿 存储:"
         df -Th / /mnt 2>/dev/null | awk 'NR==1 {print "   " $0} NR>1 {print "   " $0}'    
         echo ""
-        echo "🐧 System:"
+        echo "🐧 系统:"
         lsb_release -a 2>/dev/null | awk '{print "   " $0}'
         echo ""
-        echo "🔧 Kernel:"
-        echo "   $(uname -a)"    
+        echo "🔧 内核:"
+        echo "   $(uname -a)"
+        echo ""
+        echo "🖥️ 编译设备: ${{ github.event.inputs.DEVICE }}"
         echo "════════════════════════════════════════════════════════"
           
     - name: 初始化构建环境
