@@ -133,7 +133,7 @@ jobs:
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /builder/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: Cache Toolchain
+    - name: 缓存工具链
       if: env.CACHE_TOOLCHAIN == 'true'
       uses: HiGarfield/cachewrtbuild@main
       with:
