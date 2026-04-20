@@ -19,18 +19,32 @@ on:
 # 手动触发
   workflow_dispatch:
     inputs:
+      DEVICE:
+        description: '🖥️ 选择构建设备'
+        required: true
+        default: 'x86_64'
+        type: choice
+        options:
+          - 'cetron_ct3003'
+          - 'cudy_tr3000-v1'
+          - 'cudy_tr3000-v1-256mb'
+          - 'clx_s20p'
+          - 'philips_hy3000'
+          - 'jdcloud_re-cp-03'
+          - 'netcore_n60-pro'
+          - 'qihoo_360t7'
       HOST_NAME:
-        description: '主机名称 （Host Name）'
+        description: '🏷️ 主机名称 （Host Name）'
         required: true
         default: 'ZeroWrt'
         type: string          
       LAN_IP:
-        description: 'LAN IP 地址 （LAN IPv4 Address）'
+        description: '🌐 LAN IP 地址 （LAN IPv4 Address）'
         required: true
         default: '10.0.0.1'
         type: string
       ROOT_PASSWORD:
-        description: 'Root 密码（Root password, optional）'
+        description: '🔐 Root 密码（Root password, optional）'
         required: false
         default: ''
         type: string
