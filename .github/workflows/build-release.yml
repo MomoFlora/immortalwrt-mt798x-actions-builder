@@ -152,7 +152,7 @@ jobs:
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: false
-        mixkey: immortalwrt-mt7981-${{ github.event.inputs.DEVICE }}
+        mixkey: immortalwrt-mt798x-${{ github.event.inputs.DEVICE }}
         prefix: openwrt
         
     - name: 加载 feeds.conf.default & DIY_P1_SH
@@ -280,7 +280,7 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
       uses: actions/upload-artifact@main
       with:
-        name: ImmortalWrt-mt7981-${{ github.event.inputs.DEVICE }}
+        name: ImmortalWrt-mt798x-${{ github.event.inputs.DEVICE }}
         path: openwrt/bin/targets/*/*
 
     - name: 上传固件到发布版本
