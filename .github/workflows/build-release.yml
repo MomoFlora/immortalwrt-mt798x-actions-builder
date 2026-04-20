@@ -142,6 +142,14 @@ jobs:
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /builder/openwrt $GITHUB_WORKSPACE/openwrt
 
+    - name: Cache Toolchain
+      if: env.CACHE_TOOLCHAIN == 'true'
+      uses: HiGarfield/cachewrtbuild@main
+      with:
+        ccache: false
+        mixkey: immortalwrt-mt7981-philips-hy3000
+        prefix: openwrt
+        
     - name: 加载 feeds.conf.default & DIY_P1_SH
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
@@ -246,6 +254,7 @@ jobs:
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: 查看磁盘使用情况
       if: (!cancelled())
@@ -261,21 +270,20 @@ jobs:
         tar -zcf Packages.tar.gz packages
         rm -rf packages feeds.buildinfo version.buildinfo
         echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
-        echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV  
 
     - name: 将固件上传到 Artifact
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
       uses: actions/upload-artifact@main
       with:
-        name: ${{ env.SOURCE_REPO }}-firmware-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE_PATH }}
+        name: ImmortalWrt-mt7981-philips-hy3000
+        path: openwrt/bin/targets/*/*
 
     - name: 上传固件到发布版本
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
       uses: ncipollo/release-action@v1
       with:
-        name: R${{ env.DATE }} for ${{ env.FIRMWARE_TAG }}
+        name: philips-hy3000
         allowUpdates: true
-        tag: ${{ env.FIRMWARE_TAG }}
+        tag: philips-hy3000
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: ${{ env.FIRMWARE_PATH }}/*
+        artifacts: openwrt/bin/targets/*/*/*
