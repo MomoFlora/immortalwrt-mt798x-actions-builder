@@ -56,10 +56,10 @@ on:
 env:
   REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
   REPO_BRANCH: openwrt-24.10-6.6
-  FEEDS_CONF: philips-hy3000/feeds.conf.default
-  CONFIG_FILE: philips-hy3000/philips-hy3000.config
-  DIY_P1_SH: philips-hy3000/diy-part1.sh
-  DIY_P2_SH: philips-hy3000/diy-part2.sh
+  FEEDS_CONF: ${{ github.event.inputs.DEVICE }}/feeds.conf.default
+  CONFIG_FILE: ${{ github.event.inputs.DEVICE }}/philips-hy3000.config
+  DIY_P1_SH: ${{ github.event.inputs.DEVICE }}/diy-part1.sh
+  DIY_P2_SH: ${{ github.event.inputs.DEVICE }}/diy-part2.sh
   CACHE_TOOLCHAIN: true
   FIRMWARE_RELEASE: true
   TZ: Asia/Shanghai
@@ -152,7 +152,7 @@ jobs:
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: false
-        mixkey: immortalwrt-mt7981-philips-hy3000
+        mixkey: immortalwrt-mt7981-${{ github.event.inputs.DEVICE }}
         prefix: openwrt
         
     - name: 加载 feeds.conf.default & DIY_P1_SH
@@ -280,15 +280,15 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
       uses: actions/upload-artifact@main
       with:
-        name: ImmortalWrt-mt7981-philips-hy3000
+        name: ImmortalWrt-mt7981-${{ github.event.inputs.DEVICE }}
         path: openwrt/bin/targets/*/*
 
     - name: 上传固件到发布版本
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
       uses: ncipollo/release-action@v1
       with:
-        name: philips-hy3000
+        name: ${{ github.event.inputs.DEVICE }}
         allowUpdates: true
-        tag: philips-hy3000
+        tag: ${{ github.event.inputs.DEVICE }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: openwrt/bin/targets/*/*/*
