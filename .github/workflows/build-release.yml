@@ -22,7 +22,7 @@ on:
       DEVICE:
         description: '🖥️ 选择构建设备'
         required: true
-        default: 'x86_64'
+        default: 'Philips_HY3000'
         type: choice
         options:
           - 'Cetron_CT3003'
