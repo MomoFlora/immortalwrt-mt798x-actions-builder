@@ -24,6 +24,7 @@ git clone --depth=1 -b v5 https://github.com/sbwml/luci-app-mosdns package/new/m
 git clone --depth=1 -b main https://github.com/sbwml/luci-app-openlist2 package/new/openlist
 git clone --depth=1 -b main https://github.com/MomoFlora/luci-app-adguardhome package/new/adguardhome
 git clone --depth=1 -b master https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
+git clone --depth=1 https://github.com/MomoFlora/luci-app-socat package/new/luci-app-socat
 
 # 科学上网插件
 git clone --depth=1 https://github.com/ZeroWrt/openwrt_helloworld package/new/helloworld
