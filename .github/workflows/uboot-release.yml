@@ -29,9 +29,11 @@ on:
           - 'Cudy_TR3000-V1'
           - 'Cudy_TR3000-V1-256MB'
           - 'CLX_S20P'
+          - 'CLX_S20L'
           - 'Philips_HY3000'
           - 'JDCloud_RE-CP-03'
           - 'Netcore_N60-PRO'
+          - 'Netcore_N60-PRO-512ROM'
           - 'Qihoo_360T7'
 
 env:
@@ -145,6 +147,10 @@ jobs:
           SOC=mt7981 BOARD=philips_hy3000 VERSION=2025 ./build.sh
         elif [ "${{ github.event.inputs.DEVICE }}" = "JDCloud_RE-CP-03" ]; then
           SOC=mt7986 BOARD=jdcloud_re-cp-03 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Netcore_N60-PRO" ]; then
+          SOC=mt7986 BOARD=netcore_n60-pro VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Netcore_N60-PRO-512ROM" ]; then
+          SOC=mt7986 BOARD=netcore_n60-pro-512rom VERSION=2025 ./build.sh
         elif [ "${{ github.event.inputs.DEVICE }}" = "Qihoo_360T7" ]; then
           SOC=mt7981 BOARD=360t7 VERSION=2025 ./build.sh
         fi
