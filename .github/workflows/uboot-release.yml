@@ -147,6 +147,22 @@ jobs:
         fi
         echo "status=success" >> $GITHUB_OUTPUT
 
+    - name: 整理文件
+      if: steps.compile.outputs.status == 'success'
+      run: |
+        cd uboot/output
+        echo "原始文件："
+        ls -lh
+
+        # 去掉文件名中的 md5 值
+        for file in *md5-*; do
+          new_name=$(echo "$file" | sed -E 's/_md5-[a-f0-9]+//')
+          mv "$file" "$new_name"
+        done
+
+        echo "处理后文件："
+        ls -lh
+        
     - name: 将固件上传到 Artifact
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
       uses: actions/upload-artifact@main
