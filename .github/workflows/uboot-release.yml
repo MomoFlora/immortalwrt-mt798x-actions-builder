@@ -129,6 +129,7 @@ jobs:
       id: compile
       run: |
         cd uboot
+        
         if [[ "${{ github.event.inputs.DEVICE }}" == Cetron_CT3003 ]]; then
           SOC=mt7981 BOARD=cetron_ct3003 VERSION=2025 ./build.sh
         elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1" ]; then
@@ -144,6 +145,7 @@ jobs:
         elif [ "${{ github.event.inputs.DEVICE }}" = "Qihoo_360T7" ]; then
           SOC=mt7981 BOARD=360t7 VERSION=2025 ./build.sh
         fi
+        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: 将固件上传到 Artifact
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
