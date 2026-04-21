@@ -152,7 +152,7 @@ jobs:
       uses: actions/upload-artifact@main
       with:
         name: ImmortalWrt-mt798x-${{ github.event.inputs.DEVICE }}
-        path: uboot/upload/*
+        path: uboot/output/*
 
     - name: 上传固件到发布版本
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
@@ -162,4 +162,4 @@ jobs:
         allowUpdates: true
         tag: ${{ github.event.inputs.DEVICE }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: uboot/upload/*
+        artifacts: uboot/output/*
