@@ -56,6 +56,7 @@ on:
 env:
   REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
   REPO_BRANCH: openwrt-24.10-6.6
+  OPENWRT_FILE: ${{ github.event.inputs.DEVICE }}/files
   FEEDS_CONF: ${{ github.event.inputs.DEVICE }}/feeds.conf.default
   CONFIG_FILE: ${{ github.event.inputs.DEVICE }}/${{ github.event.inputs.DEVICE }}.config
   DIY_P1_SH: ${{ github.event.inputs.DEVICE }}/diy-part1.sh
@@ -172,6 +173,7 @@ jobs:
 
     - name: 加载自定义配置
       run: |
+        [[ -d "$OPENWRT_FILE ]] && mv -f $OPENWRT_FILE openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
@@ -223,7 +225,7 @@ jobs:
             echo ">>> LAN IP 已修改完成"
 
         else
-            echo ">>> IP 不合法，跳过修改（保持默认 192.168.1.1）"
+            echo ">>> IP 不合法，跳过修改（保持默认 10.0.0.1）"
         fi
 
     - name: 设置路由器默认密码
