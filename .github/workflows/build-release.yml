@@ -293,3 +293,14 @@ jobs:
         tag: ${{ github.event.inputs.DEVICE }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: openwrt/bin/targets/*/*/*
+        body: |
+          ## 📦 固件信息
+
+          - 🖥️ 设备: ${{ github.event.inputs.DEVICE }}
+          - 📅 构建时间: $(date +'%Y-%m-%d %H:%M')
+          - 🌿 分支: ${{ env.REPO_BRANCH }}
+
+          ## ⚙️ 默认配置
+
+          - 🌐 LAN IP: ${{ github.event.inputs.LAN_IP }}
+          - 🏷️ 主机名: ${{ github.event.inputs.HOST_NAME }}
