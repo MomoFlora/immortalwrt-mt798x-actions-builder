@@ -1,0 +1,169 @@
+# ===============================================================================
+# Custom Build Configuration
+# ------------------------------------------------------------------------------
+# Project   : ImmortalWrt for MT798X
+# Repository: https://github.com/MomoFlora/immortalwrt-mt798x-actions-builder
+# Maintainer: Zhao Wenwen
+#
+# Description:
+#   Customized build pipeline based on P3TERX Actions-OpenWrt,
+#   tailored for Philips HY3000 platform with MT7981 SoC.
+# ===============================================================================
+
+name: 💾 Uboot 编译
+
+on:
+# 远程触发按钮
+  repository_dispatch:
+    
+# 手动触发
+  workflow_dispatch:
+    inputs:
+      DEVICE:
+        description: '🖥️ 选择构建设备'
+        required: true
+        default: 'Philips_HY3000'
+        type: choice
+        options:
+          - 'Cetron_CT3003'
+          - 'Cudy_TR3000-V1'
+          - 'Cudy_TR3000-V1-256MB'
+          - 'CLX_S20P'
+          - 'Philips_HY3000'
+          - 'JDCloud_RE-CP-03'
+          - 'Netcore_N60-PRO'
+          - 'Qihoo_360T7'
+
+env:
+  REPO_URL: https://github.com/Yuzhii0718/bl-mt798x-dhcpd
+  REPO_BRANCH: master
+  FIRMWARE_RELEASE: true
+  TZ: Asia/Shanghai
+  
+jobs:
+  Build:
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
+
+    steps:
+    - name: 检查项目分支
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: 检查服务器性能
+      run: |
+        echo "════════════════════════════════════════════════════════"
+        echo "🔧 系统信息"
+        echo "════════════════════════════════════════════════════════"
+        echo "📊 CPU:"
+        echo "   $(grep 'model name' /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}')"
+        echo "   ⚡ 频率: $(grep 'cpu MHz' /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}') MHz"
+        echo "   🔢 核心数: $(grep processor /proc/cpuinfo | wc -l)"    
+        echo ""
+        echo "💾 内存:"
+        free -h | awk '/^Mem:/ {print "   总计: " $2, "| 已用: " $3, "| 空闲: " $4}'
+        free -h | awk '/^Swap:/ {print "   交换分区: " $2, "| 已用: " $3, "| 空闲: " $4}'    
+        echo ""
+        echo "💿 存储:"
+        df -Th / /mnt 2>/dev/null | awk 'NR==1 {print "   " $0} NR>1 {print "   " $0}'    
+        echo ""
+        echo "🐧 系统:"
+        lsb_release -a 2>/dev/null | awk '{print "   " $0}'
+        echo ""
+        echo "🔧 内核:"
+        echo "   $(uname -a)"
+        echo ""
+        echo "🖥️ 编译设备: ${{ github.event.inputs.DEVICE }}"
+        echo "════════════════════════════════════════════════════════"
+          
+    - name: 初始化构建环境
+      id: init
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        docker rmi -f $(docker images -q) 2>/dev/null || true
+        [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android 2>/dev/null
+        sudo swapoff -a
+        sudo rm -f /swapfile /mnt/swapfile
+        sudo -E apt-get -y update
+        sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+        sudo -E apt-get -y install $(curl -fsSL https://ophub.org/ubuntu2404-make-openwrt-depends)
+        sudo -E systemctl daemon-reload
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        sudo rm -rf ~/{.cargo,.dotnet,.rustup}
+        sudo -E timedatectl set-timezone "${TZ:-Etc/UTC}"
+        sudo -E ntpdate ntp.ubuntu.com 0.pool.ntp.org || true
+        sudo -E timedatectl set-ntp true
+        date -u
+        timedatectl status || true
+
+    - name: 创建虚拟磁盘以扩展存储
+      run: |
+        mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
+        root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
+        sudo truncate -s "${mnt_size}"G /mnt/mnt.img
+        sudo truncate -s "${root_size}"G /root.img
+        sudo losetup /dev/loop6 /mnt/mnt.img
+        sudo losetup /dev/loop7 /root.img
+        sudo pvcreate /dev/loop6
+        sudo pvcreate /dev/loop7
+        sudo vgcreate github /dev/loop6 /dev/loop7
+        sudo lvcreate -n runner -l 100%FREE github
+        sudo mkfs.xfs -f -i sparse=0 -b size=4096 /dev/github/runner
+        sudo mkdir -p /builder
+        sudo mount /dev/github/runner /builder
+        sudo chown -R runner:runner /builder
+  
+    - name: 下载 Uboot 源码
+      working-directory: /builder
+      run: |
+        df -hT $PWD
+        git clone $REPO_URL -b $REPO_BRANCH uboot
+        ln -sf /builder/uboot $GITHUB_WORKSPACE/uboot
+
+    - name: 开始编译 Uboot
+      id: compile
+      run: |
+        cd uboot
+        if [[ "${{ github.event.inputs.DEVICE }}" == Cetron_CT3003 ]]; then
+          SOC=mt7981 BOARD=cetron_ct3003 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1" ]; then
+          SOC=mt7981 BOARD=cudy-tr3000-v1 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1-256MB" ]; then  
+          SOC=mt7981 BOARD=cudy-tr3000-v1-256mb VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "CLX_S20P" ]; then    
+          SOC=mt7986 BOARD=clx_s20p VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Philips_HY3000" ]; then  
+          SOC=mt7986 BOARD=philips_hy3000 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "JDCloud_RE-CP-03" ]; then
+          SOC=mt7986 BOARD=jdcloud_re-cp-03 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Qihoo_360T7" ]; then
+          SOC=mt7986 BOARD=360t7 VERSION=2025 ./build.sh
+        fi
+
+    - name: 将固件上传到 Artifact
+      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
+      uses: actions/upload-artifact@main
+      with:
+        name: ImmortalWrt-mt798x-${{ github.event.inputs.DEVICE }}
+        path: uboot/upload/*
+
+    - name: 上传固件到发布版本
+      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        name: ${{ github.event.inputs.DEVICE }}
+        allowUpdates: true
+        tag: ${{ github.event.inputs.DEVICE }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: openwrt/bin/targets/*/*/*
+        body: |
+          ## 📦 固件信息
+
+          - 🖥️ 设备: ${{ github.event.inputs.DEVICE }}
+          - 📅 构建时间: $(date +'%Y-%m-%d %H:%M')
+          - 🌿 分支: ${{ env.REPO_BRANCH }}
