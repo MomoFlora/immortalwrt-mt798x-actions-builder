@@ -137,7 +137,7 @@ jobs:
         elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1" ]; then
           SOC=mt7981 BOARD=cudy-tr3000-v1 VERSION=2025 ./build.sh
         elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1-256MB" ]; then
-          cp -f "$GITHUB_WORKSPACE/Cudy_TR3000-V1(256ROM)/atf_cudy_tr3000-v1-256mb" atf-20240117-bacca82a8/configs/mt7981_cudy_tr3000-v1-256mb_defconfig
+          cp -f "$GITHUB_WORKSPACE/Cudy_TR3000-V1(256ROM)/atf_cudy_tr3000-v1-256mb" atf-20250711/configs/mt7981_cudy_tr3000-v1-256mb_defconfig
           cp -f "$GITHUB_WORKSPACE/Cudy_TR3000-V1(256ROM)/mt7981-cudy-tr3000-v1-256mb.dts" uboot-mtk-20250711/arch/arm/dts/mt7981-cudy-tr3000-v1-256mb.dts
           cp -f "$GITHUB_WORKSPACE/Cudy_TR3000-V1(256ROM)/uboot-mtk_cudy_tr3000-v1-256mb" uboot-mtk-20250711/configs/mt7981_cudy_tr3000-v1-256mb_defconfig
           SOC=mt7981 BOARD=cudy-tr3000-v1-256mb VERSION=2025 ./build.sh
