@@ -27,11 +27,13 @@ on:
         options:
           - 'Cetron_CT3003'
           - 'Cudy_TR3000-V1'
-          - 'Cudy_TR3000-V1-256MB'
+          - 'Cudy_TR3000-V1-256ROM'
           - 'CLX_S20P'
+          - 'CLX_S20L'
           - 'Philips_HY3000'
           - 'JDCloud_RE-CP-03'
           - 'Netcore_N60-PRO'
+          - 'Netcore_N60-PRO-512ROM'
           - 'Qihoo_360T7'
       HOST_NAME:
         description: '🏷️ 主机名称 （Host Name）'
