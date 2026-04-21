@@ -160,7 +160,7 @@ jobs:
         allowUpdates: true
         tag: ${{ github.event.inputs.DEVICE }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: openwrt/bin/targets/*/*/*
+        artifacts: uboot/upload/*
         body: |
           ## 📦 固件信息
 
