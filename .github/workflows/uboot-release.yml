@@ -129,7 +129,7 @@ jobs:
       id: compile
       run: |
         cd uboot
-        
+        sed -i 's/^AUTHOR="Yuzhii"/AUTHOR="MomoFlora"/' build.sh
         if [[ "${{ github.event.inputs.DEVICE }}" == Cetron_CT3003 ]]; then
           SOC=mt7981 BOARD=cetron_ct3003 VERSION=2025 ./build.sh
         elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1" ]; then
