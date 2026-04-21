@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Delete all workflow runs
-        uses: actions/github-script@v6
+        uses: actions/github-script@main
         with:
           script: |
             // 获取所有工作流运行记录
