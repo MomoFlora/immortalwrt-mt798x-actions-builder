@@ -156,7 +156,7 @@ jobs:
           SOC=mt7986 BOARD=netcore_n60-pro VERSION=2025 ./build.sh
         elif [ "${{ github.event.inputs.DEVICE }}" = "Netcore_N60-PRO-512ROM" ]; then
           sed -i 's/117248k(ubi)/470m(ubi)/' uboot-mtk-20250711/configs/mt7986_netcore_n60-pro_defconfig
-          SOC=mt7986 BOARD=netcore_n60-pro-512rom VERSION=2025 ./build.sh
+          SOC=mt7986 BOARD=netcore_n60-pro VERSION=2025 ./build.sh
           for f in output/*mt7986_netcore_n60-pro_*; do
             mv "$f" "$(echo "$f" | sed 's/-pro_/-pro-512rom_/')"
           done
