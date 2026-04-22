@@ -274,10 +274,61 @@ jobs:
     - name: 整理文件
       if: steps.compile.outputs.status == 'success'
       run: |
-        cd openwrt/bin/targets/*/*
-        cat sha256sums
-        tar -zcf Packages.tar.gz packages
-        rm -rf packages feeds.buildinfo version.buildinfo
+        mkdir -p rom info
+        if [[ "${{ github.event.inputs.device }}" == Cetron_CT3003 ]]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "Cudy_TR3000-V1" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "Cudy_TR3000-V1-256ROM" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "CLX_S20P" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "CLX_S20L" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "Philips_HY3000" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*initramfs-kernel.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *squashfs-sysupgrade.bin *initramfs-kernel.bin > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "JDCloud_RE-CP-03" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "Netcore_N60-PRO" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "Netcore_N60-PRO-512ROM" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        elif [ "${{ github.event.inputs.device }}" = "Qihoo_360T7" ]; then
+          cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
+          cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
+          cd rom && sha256sum *gz > ../info/sha256sums.txt
+        fi
+        cd ..
+        tar zcf rom/buildinfo_${{ matrix.model }}.tar.gz info
         echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
 
     - name: 将固件上传到 Artifact
@@ -285,7 +336,7 @@ jobs:
       uses: actions/upload-artifact@main
       with:
         name: ImmortalWrt-mt798x-${{ github.event.inputs.DEVICE }}
-        path: openwrt/bin/targets/*/*
+        path: rom/*
 
     - name: 上传固件到发布版本
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
@@ -295,7 +346,7 @@ jobs:
         allowUpdates: true
         tag: ${{ github.event.inputs.DEVICE }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: openwrt/bin/targets/*/*/*
+        artifacts: rom/*
         body: |
           # 🚀 ZeroWrt 固件发布
 
