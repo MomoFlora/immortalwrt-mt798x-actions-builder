@@ -358,7 +358,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: rom/*
         body: |
-          # 🚀 ZeroWrt 固件发布
+          # 🚀 ZeroWrt Mediatek 固件发布
 
           > 基于开源项目构建，专为高性能与稳定性优化
 
