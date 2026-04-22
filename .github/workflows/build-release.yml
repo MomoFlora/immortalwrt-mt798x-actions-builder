@@ -308,16 +308,19 @@ jobs:
           cd rom && sha256sum *squashfs-sysupgrade.bin *initramfs-kernel.bin > ../info/sha256sums.txt
         elif [ "${{ github.event.inputs.device }}" = "JDCloud_RE-CP-03" ]; then
           cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*initramfs-kernel.bin rom/
           cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
           cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
           cd rom && sha256sum *gz > ../info/sha256sums.txt
         elif [ "${{ github.event.inputs.device }}" = "Netcore_N60-PRO" ]; then
           cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*initramfs-kernel.bin rom/
           cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
           cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
           cd rom && sha256sum *gz > ../info/sha256sums.txt
         elif [ "${{ github.event.inputs.device }}" = "Netcore_N60-PRO-512ROM" ]; then
           cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
+          cp -a openwrt/bin/targets/mediatek/filogic/*initramfs-kernel.bin rom/
           cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
           cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
           cd rom && sha256sum *gz > ../info/sha256sums.txt
