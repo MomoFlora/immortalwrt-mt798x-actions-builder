@@ -389,7 +389,6 @@ jobs:
         fetch-depth: 0
         
     - name: 下载 Uboot 源码
-      working-directory: /builder
       run: |
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH uboot
