@@ -73,7 +73,6 @@ env:
   CONFIG_FILE: ${{ github.event.inputs.DEVICE }}/${{ github.event.inputs.DEVICE }}.config
   DIY_P1_SH: ${{ github.event.inputs.DEVICE }}/diy-part1.sh
   DIY_P2_SH: ${{ github.event.inputs.DEVICE }}/diy-part2.sh
-  CACHE_TOOLCHAIN: true
   FIRMWARE_RELEASE: true
   TZ: Asia/Shanghai
 
