@@ -73,7 +73,6 @@ env:
   CONFIG_FILE: ${{ github.event.inputs.DEVICE }}/${{ github.event.inputs.DEVICE }}.config
   DIY_P1_SH: ${{ github.event.inputs.DEVICE }}/diy-part1.sh
   DIY_P2_SH: ${{ github.event.inputs.DEVICE }}/diy-part2.sh
-  CACHE_TOOLCHAIN: true
   FIRMWARE_RELEASE: true
   TZ: Asia/Shanghai
 
@@ -260,7 +259,28 @@ jobs:
         else
             echo ">>> 未设置 Root 密码，保持默认"
         fi
+        
+    - name: 使用缓存加速构建
+      if: github.event.inputs.BUILD_FAST == 'true'
+      run: |
+        TOOLCHAIN_URL=https://github.com/MomoFlora/immortalwrt-mt798x-actions-builder/releases/download/Toolchain_Cache
+        curl -L ${TOOLCHAIN_URL}/toolchain_musl_aarch64_cortex-a53_gcc-13.tar.zst -o toolchain.tar.zst --progress-bar
 
+        echo -e "\n==> 正在加载工具链..."
+
+        tar -I "zstd" -xf toolchain.tar.zst
+
+        echo "==> 正在清理临时文件..."
+        rm -f toolchain.tar.zst
+
+        echo "==> 正在准备构建环境..."
+        mkdir bin
+
+        find ./staging_dir/ -name '*' -exec touch {} \; >/dev/null 2>&1
+        find ./tmp/ -name '*' -exec touch {} \; >/dev/null 2>&1
+
+        echo "==> 工具链加载完成"
+    
     - name: 下载安装包
       run: |
         cd openwrt
