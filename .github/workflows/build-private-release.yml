@@ -338,7 +338,7 @@ jobs:
         name: ${{ github.event.inputs.DEVICE }}
         allowUpdates: true
         tag: ${{ github.event.inputs.DEVICE }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.workflow_token }}
         artifacts: rom/*
         body: |
           # 🚀 ZeroWrt Mediatek 固件发布
