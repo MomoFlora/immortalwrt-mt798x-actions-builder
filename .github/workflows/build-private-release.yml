@@ -374,7 +374,7 @@ jobs:
 
   Build_Uboot:
     needs: [Build_Firmware]
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
 
     env:
       REPO_URL: https://github.com/Yuzhii0718/bl-mt798x-dhcpd
