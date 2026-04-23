@@ -78,7 +78,7 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  Build:
+  Build_Firmware:
     runs-on: self-hosted
     if: ${{ github.event.repository.owner.id == github.event.sender.id }}
 
