@@ -212,23 +212,27 @@ jobs:
     - name: 使用缓存加速构建
       if: github.event.inputs.BUILD_FAST == 'true'
       run: |
+        cd openwrt
+
         TOOLCHAIN_URL=https://github.com/MomoFlora/immortalwrt-mt798x-actions-builder/releases/download/Toolchain_Cache
+
+        echo ">>> 下载工具链缓存"
         curl -L ${TOOLCHAIN_URL}/toolchain_musl_aarch64_cortex-a53_gcc-13.tar.zst -o toolchain.tar.zst --progress-bar
 
-        echo -e "\n==> 正在加载工具链..."
-
+        echo ">>> 正在解压工具链"
         tar -I "zstd" -xf toolchain.tar.zst
 
-        echo "==> 正在清理临时文件..."
+        echo ">>> 清理临时文件"
         rm -f toolchain.tar.zst
 
-        echo "==> 正在准备构建环境..."
-        mkdir bin
+        echo ">>> 准备构建环境"
+        mkdir -p bin
 
+        echo ">>> 更新时间戳（防止编译判断失败）"
         find ./staging_dir/ -name '*' -exec touch {} \; >/dev/null 2>&1
         find ./tmp/ -name '*' -exec touch {} \; >/dev/null 2>&1
 
-        echo "==> 工具链加载完成"
+        echo ">>> 工具链加载完成"
         
     - name: 下载安装包
       run: |
