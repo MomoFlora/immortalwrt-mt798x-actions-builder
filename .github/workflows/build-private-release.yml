@@ -243,7 +243,7 @@ jobs:
           cp -a openwrt/bin/targets/mediatek/filogic/*initramfs-kernel.bin rom/
           cp -a openwrt/bin/targets/mediatek/filogic/*.manifest info/manifest.txt
           cp -a openwrt/bin/targets/mediatek/filogic/config.buildinfo info/config.buildinfo
-          cd rom && sha256sum *squashfs-sysupgrade.bin *initramfs-kernel.bin > ../info/sha256sums.txt
+          cd rom && sha256sum *squashfs-sysupgrade.bin *squashfs-factory.bin *initramfs-kernel.bin > ../info/sha256sums.txt
         elif [ "${{ github.event.inputs.device }}" = "Cudy_TR3000-V1" ]; then
           cp -a openwrt/bin/targets/mediatek/filogic/*squashfs-sysupgrade.bin rom/
           cp -a openwrt/bin/targets/mediatek/filogic/*initramfs-kernel.bin rom/
