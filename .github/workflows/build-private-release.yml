@@ -369,7 +369,7 @@ jobs:
           > 💡 **提示**：如需个性化配置（WiFi / IP / 插件），建议自行编译以获得最佳体验
 
   Build_Uboot:
-    needs: [Build]
+    needs: [Build_Firmware]
     runs-on: ubuntu-24.04
 
     env:
