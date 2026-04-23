@@ -35,20 +35,24 @@ on:
           - 'Netcore_N60-PRO'
           - 'Netcore_N60-PRO-512ROM'
           - 'Qihoo_360T7'
+      BUILD_FAST:
+        description: '⚡ 启用 Toolchain Cache（使用缓存加速下一次构建）'
+        type: boolean
+        default: false
       HOST_NAME:
-        description: '🏷️ 主机名称 （Host Name）'
+        description: '🏷️ 设置主机名称'
         required: true
         default: 'ZeroWrt'
         type: string          
       LAN_IP:
-        description: '🌐 LAN IP 地址 （LAN IPv4 Address）'
+        description: '🌐 修改默认 LAN IP 地址（默认 LAN IP 为 10.0.0.1 ）'
         required: true
         default: '10.0.0.1'
         type: string
       ROOT_PASSWORD:
-        description: '🔐 Root 密码（Root password, optional）'
+        description: '🔐 Root 密码（默认密码为 password ）'
         required: false
-        default: ''
+        default: 'password'
         type: string
 
 # 定时触发编译
