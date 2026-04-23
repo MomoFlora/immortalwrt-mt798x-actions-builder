@@ -557,3 +557,34 @@ jobs:
         tag: ${{ github.event.inputs.DEVICE }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: uboot/output/*    
+        body: |
+          # 🚀 ZeroWrt Mediatek 固件发布
+
+          > 基于开源项目构建，专为高性能与稳定性优化
+
+          ## 📦 构建信息
+
+          - 🖥️ **目标设备**：`${{ github.event.inputs.DEVICE }}`
+          - 📅 **构建时间**：`${{ env.BUILD_DATE }}`
+          - 🌿 **源码分支**：`${{ env.REPO_BRANCH }}`
+          - 🧠 **内核版本**：`Linux 6.6.95`
+
+          ## ⚙️ 默认配置
+
+          - 🌐 **管理地址**：`${{ github.event.inputs.LAN_IP }}`
+          - 🏷️ **主机名称**：`${{ github.event.inputs.HOST_NAME }}`
+
+          ### 📶 无线网络
+
+          - 📡 **WiFi 名称**：
+            - `ZeroWrt-2.4G`
+            - `ZeroWrt-5G`
+          - 🔑 **WiFi 密码**：`1234567890`
+
+          ## ⚠️ 注意事项
+
+          - 因精力有限不提供任何技术支持和教程等相关问题解答，不保证完全无 BUG！  
+          - 本人不对任何人因使用本固件所遭受的任何理论或实际的损失承担责任！  
+          - 本固件禁止用于任何商业用途，请务必严格遵守国家互联网使用相关法律规定！  
+
+          > 💡 **提示**：如需个性化配置（WiFi / IP / 插件），建议自行编译以获得最佳体验
