@@ -36,21 +36,31 @@ on:
           - 'Netcore_N60-PRO-512ROM'
           - 'Qihoo_360T7'
       HOST_NAME:
-        description: '🏷️ 主机名称 （Host Name）'
+        description: '🏷️ 设置主机名称'
         required: true
         default: 'ZeroWrt'
         type: string          
       LAN_IP:
-        description: '🌐 LAN IP 地址 （LAN IPv4 Address）'
+        description: '🌐 修改默认 LAN IP 地址（默认 LAN IP 为 10.0.0.1 ）'
         required: true
         default: '10.0.0.1'
         type: string
       ROOT_PASSWORD:
-        description: '🔐 Root 密码（Root password, optional）'
+        description: '🔐 Root 密码（默认密码为 password ）'
         required: false
-        default: ''
+        default: 'password'
         type: string
-
+      BUILD_FAST:
+        description: '⚡ 启用 Toolchain Cache（使用缓存加速下一次构建）'
+        required: true
+        type: boolean
+        default: false
+      BUILD_UBOOT:
+        description: '🧱 是否同时编译 U-Boot'
+        required: true
+        type: boolean
+        default: false
+        
 # 定时触发编译
   schedule:
     - cron: '0 16 1 * *'
@@ -355,7 +365,7 @@ jobs:
         name: ${{ github.event.inputs.DEVICE }}
         allowUpdates: true
         tag: ${{ github.event.inputs.DEVICE }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.workflow_token }}
         artifacts: rom/*
         body: |
           # 🚀 ZeroWrt Mediatek 固件发布
@@ -388,3 +398,15 @@ jobs:
           - 本固件禁止用于任何商业用途，请务必严格遵守国家互联网使用相关法律规定！  
 
           > 💡 **提示**：如需个性化配置（WiFi / IP / 插件），建议自行编译以获得最佳体验
+
+    - name: 触发 U-Boot 工作流
+      if: steps.compile.outputs.status == 'success' && github.event.inputs.BUILD_UBOOT == 'true'
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        token: ${{ secrets.workflow_token }}
+        event-type: build-uboot
+        client-payload: |
+          {
+            "DEVICE": "${{ github.event.inputs.DEVICE }}",
+            "HOST_NAME": "${{ github.event.inputs.HOST_NAME }}"
+          }
