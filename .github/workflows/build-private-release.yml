@@ -209,14 +209,6 @@ jobs:
             echo ">>> 未设置 Root 密码，保持默认"
         fi
 
-    - name: 下载安装包
-      run: |
-        cd openwrt
-        make defconfig
-        make download -j$(nproc)
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-
     - name: 使用缓存加速构建
       if: github.event.inputs.BUILD_FAST == 'true'
       run: |
@@ -237,6 +229,14 @@ jobs:
         find ./tmp/ -name '*' -exec touch {} \; >/dev/null 2>&1
 
         echo "==> 工具链加载完成"
+        
+    - name: 下载安装包
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
         
     - name: 编译固件
       id: compile
