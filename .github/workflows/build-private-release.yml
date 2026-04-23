@@ -55,7 +55,12 @@ on:
         required: true
         type: boolean
         default: false
-
+      BUILD_UBOOT:
+        description: '🧱 是否同时编译 U-Boot'
+        required: true
+        type: boolean
+        default: false
+        
 # 定时触发编译
 #  schedule:
 #    - cron: '0 16 1 * *'
@@ -221,6 +226,27 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
+    - name: 使用缓存加速构建
+      if: github.event.inputs.BUILD_FAST == 'true'
+      run: |
+        TOOLCHAIN_URL=https://github.com/MomoFlora/immortalwrt-mt798x-actions-builder/releases/download/Toolchain_Cache
+        curl -L ${TOOLCHAIN_URL}/toolchain_musl_aarch64_cortex-a53_gcc-13.tar.zst -o toolchain.tar.zst --progress-bar
+
+        echo -e "\n==> 正在加载工具链..."
+
+        tar -I "zstd" -xf toolchain.tar.zst
+
+        echo "==> 正在清理临时文件..."
+        rm -f toolchain.tar.zst
+
+        echo "==> 正在准备构建环境..."
+        mkdir bin
+
+        find ./staging_dir/ -name '*' -exec touch {} \; >/dev/null 2>&1
+        find ./tmp/ -name '*' -exec touch {} \; >/dev/null 2>&1
+
+        echo "==> 工具链加载完成"
+        
     - name: 编译固件
       id: compile
       run: |
@@ -350,3 +376,96 @@ jobs:
           - 本固件禁止用于任何商业用途，请务必严格遵守国家互联网使用相关法律规定！  
 
           > 💡 **提示**：如需个性化配置（WiFi / IP / 插件），建议自行编译以获得最佳体验
+
+  Build_Uboot:
+    needs: [Build]
+    runs-on: ubuntu-24.04
+
+    env:
+      REPO_URL: https://github.com/Yuzhii0718/bl-mt798x-dhcpd
+      REPO_BRANCH: master
+      FIRMWARE_RELEASE: true
+      TZ: Asia/Shanghai
+
+    steps:
+    - name: 检查项目分支
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        
+    - name: 下载 Uboot 源码
+      working-directory: /builder
+      run: |
+        df -hT $PWD
+        git clone $REPO_URL -b $REPO_BRANCH uboot
+
+    - name: 开始编译 Uboot
+      id: compile
+      run: |
+        cd uboot
+        sed -i 's/^AUTHOR="Yuzhii"/AUTHOR="MomoFlora"/' build.sh
+        if [[ "${{ github.event.inputs.DEVICE }}" == Cetron_CT3003 ]]; then
+          SOC=mt7981 BOARD=cetron_ct3003 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1" ]; then
+          SOC=mt7981 BOARD=cudy-tr3000-v1 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Cudy_TR3000-V1-256MB" ]; then
+          cp -f "$GITHUB_WORKSPACE/Cudy_TR3000-V1(256ROM)/atf_cudy_tr3000-v1-256mb" atf-20250711/configs/mt7981_cudy-tr3000-v1-256mb_defconfig
+          cp -f "$GITHUB_WORKSPACE/Cudy_TR3000-V1(256ROM)/mt7981-cudy-tr3000-v1-256mb.dts" uboot-mtk-20250711/arch/arm/dts/mt7981-cudy-tr3000-v1-256mb.dts
+          cp -f "$GITHUB_WORKSPACE/Cudy_TR3000-V1(256ROM)/uboot-mtk_cudy_tr3000-v1-256mb" uboot-mtk-20250711/configs/mt7981_cudy-tr3000-v1-256mb_defconfig
+          SOC=mt7981 BOARD=cudy-tr3000-v1-256mb VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "CLX_S20L" ]; then
+          cp -f $GITHUB_WORKSPACE/CLX_S20L/atf_clx_s20l atf-20250711/configs/mt7986_clx_s20l_defconfig
+          cp -f $GITHUB_WORKSPACE/CLX_S20L/mt7986a-clx_s20l.dts uboot-mtk-20250711/arch/arm/dts/mt7986a-clx_s20l.dts
+          cp -f $GITHUB_WORKSPACE/CLX_S20L/uboot-mtk_clx_s20l uboot-mtk-20250711/configs/mt7986_clx_s20l_defconfig
+          SOC=mt7986 BOARD=clx_s20l VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "CLX_S20P" ]; then    
+          SOC=mt7986 BOARD=clx_s20p VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Philips_HY3000" ]; then  
+          SOC=mt7981 BOARD=philips_hy3000 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "JDCloud_RE-CP-03" ]; then
+          SOC=mt7986 BOARD=jdcloud_re-cp-03 VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Netcore_N60-PRO" ]; then
+          SOC=mt7986 BOARD=netcore_n60-pro VERSION=2025 ./build.sh
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Netcore_N60-PRO-512ROM" ]; then
+          sed -i 's/117248k(ubi)/470m(ubi)/' uboot-mtk-20250711/configs/mt7986_netcore_n60-pro_defconfig
+          SOC=mt7986 BOARD=netcore_n60-pro VERSION=2025 ./build.sh
+          for f in output/*mt7986_netcore_n60-pro_*; do
+            mv "$f" "$(echo "$f" | sed 's/-pro_/-pro-512rom_/')"
+          done
+        elif [ "${{ github.event.inputs.DEVICE }}" = "Qihoo_360T7" ]; then
+          SOC=mt7981 BOARD=360t7 VERSION=2025 ./build.sh
+        fi
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: 整理文件
+      if: steps.compile.outputs.status == 'success'
+      run: |
+        cd uboot/output
+        echo "原始文件："
+        ls -lh
+
+        # 去掉文件名中的 md5 值
+        for file in *md5-*; do
+          new_name=$(echo "$file" | sed -E 's/_md5-[a-f0-9]+//')
+          mv "$file" "$new_name"
+        done
+
+        echo "处理后文件："
+        ls -lh
+        
+    - name: 将固件上传到 Artifact
+      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
+      uses: actions/upload-artifact@main
+      with:
+        name: ImmortalWrt-mt798x-${{ github.event.inputs.DEVICE }}
+        path: uboot/output/*
+
+    - name: 上传固件到发布版本
+      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        name: ${{ github.event.inputs.DEVICE }}
+        allowUpdates: true
+        tag: ${{ github.event.inputs.DEVICE }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: uboot/output/*      
