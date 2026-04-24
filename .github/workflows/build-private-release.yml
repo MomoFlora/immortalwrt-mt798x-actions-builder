@@ -39,17 +39,39 @@ on:
         description: '🏷️ 设置主机名称'
         required: true
         default: 'ZeroWrt'
-        type: string          
+        type: string
       LAN_IP:
         description: '🌐 修改默认 LAN IP 地址（默认 LAN IP 为 10.0.0.1 ）'
         required: true
         default: '10.0.0.1'
         type: string
+      WIFI_NAME:
+        description: '📡 WIFI 名称（SSID，默认名称为 ZeroWrt ）'
+        required: false
+        default: 'ZeroWrt'
+        type: string
+      WIFI_PASSWORD:
+        description: '📶 WIFI 密码（默认密码为 1234567890 ）'
+        required: false
+        default: '1234567890'
+        type: string        
       ROOT_PASSWORD:
         description: '🔐 Root 密码（默认密码为 password ）'
         required: false
         default: 'password'
         type: string
+      THEME:
+        description: '🎨 选择 LuCI 主题'
+        required: true
+        default: 'luci-theme-bootstrap'
+        type: choice
+        options:
+          - 'luci-theme-bootstrap'
+          - 'luci-theme-material'
+          - 'luci-theme-argon'
+          - 'luci-theme-kucat'
+          - 'luci-theme-design'
+          - 'luci-theme-aurora'
       BUILD_FAST:
         description: '⚡ 启用 Toolchain Cache（使用缓存加速下一次构建）'
         required: true
