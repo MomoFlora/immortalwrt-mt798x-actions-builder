@@ -60,18 +60,6 @@ on:
         required: false
         default: 'password'
         type: string
-      THEME:
-        description: '🎨 选择 LuCI 主题'
-        required: true
-        default: 'luci-theme-bootstrap'
-        type: choice
-        options:
-          - 'luci-theme-bootstrap'
-          - 'luci-theme-material'
-          - 'luci-theme-argon'
-          - 'luci-theme-kucat'
-          - 'luci-theme-design'
-          - 'luci-theme-aurora'
       BUILD_FAST:
         description: '⚡ 启用 Toolchain Cache（使用缓存加速下一次构建）'
         required: true
@@ -194,20 +182,15 @@ jobs:
 
             echo ">>> 设置 LAN IP: $SET_IP"
 
-            # 1. 修改默认 LAN IP（核心）
-            sed -i -E "s/(lan_ip=)192\.168\.[0-9]+\.[0-9]+/\1$SET_IP/g" \
-                package/base-files/files/bin/config_generate
+            FILE="package/base-files/files/bin/config_generate"
 
-            # 2. 修改 LuCI 默认提示 IP（更精准定位文件）
-            LUCI_FILE="feeds/luci/modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js"
-            if [ -f "$LUCI_FILE" ]; then
-                sed -i -E "s/192\.168\.[0-9]+\.[0-9]+/$SET_IP/g" "$LUCI_FILE"
-            fi
+            # ⭐ 精准替换默认 LAN IP（192.168.6.1）
+            sed -i "s|ipad=\${ipaddr:-\"192.168.6.1\"}|ipad=\${ipaddr:-\"$SET_IP\"}|" "$FILE"
 
             echo ">>> LAN IP 已修改完成"
 
         else
-            echo ">>> IP 不合法，跳过修改（保持默认 10.0.0.1）"
+            echo ">>> IP 不合法，跳过修改"
         fi
 
     - name: 设置路由器默认密码
@@ -231,6 +214,40 @@ jobs:
             echo ">>> 未设置 Root 密码，保持默认"
         fi
 
+    - name: 无线 WIFI 相关设置
+      run: |
+        cd openwrt
+
+        WIFI_NAME="${{ github.event.inputs.WIFI_NAME }}"
+        WIFI_PASSWORD="${{ github.event.inputs.WIFI_PASSWORD }}"
+
+        FILE="package/mtk/applications/mtwifi-cfg/files/mtwifi.sh"
+
+        echo ">>> WIFI_NAME: $WIFI_NAME"
+        echo ">>> WIFI_PASSWORD: $WIFI_PASSWORD"
+
+        # =========================
+        # 1. 修改 SSID
+        # =========================
+        if [ -n "$WIFI_NAME" ]; then
+            echo ">>> 修改默认 SSID"
+            sed -i "s/ImmortalWrt-2.4G/${WIFI_NAME}-2.4G/g" $FILE
+            sed -i "s/ImmortalWrt-5G/${WIFI_NAME}-5G/g" $FILE
+        fi
+
+        # =========================
+        # 2. 设置 WPA2-PSK 密码
+        # =========================
+        if [ -n "$WIFI_PASSWORD" ]; then
+            echo ">>> 设置 WIFI 密码 (WPA2-PSK)"
+
+            # 改加密方式
+            sed -i "s/encryption=none/encryption=psk2/g" $FILE
+
+            # 插入 key（严格对齐原缩进：6个Tab）
+            sed -i "/set wireless\.default_\\\${dev}\.encryption=psk2/a\					set wireless.default_\\\${dev}.key=${WIFI_PASSWORD}" $FILE
+        fi
+      
     - name: 使用缓存加速构建
       if: github.event.inputs.BUILD_FAST == 'true'
       run: |
@@ -363,7 +380,7 @@ jobs:
         token: ${{ secrets.workflow_token }}
         artifacts: rom/*
         body: |
-          # 🚀 ZeroWrt Mediatek 固件发布
+          # ⭐ ZeroWrt Mediatek 固件发布
 
           > 基于开源项目构建，专为高性能与稳定性优化
 
@@ -487,7 +504,7 @@ jobs:
         token: ${{ secrets.workflow_token }}
         artifacts: uboot/output/*      
         body: |
-          # 🚀 ZeroWrt Mediatek 固件发布
+          # ⭐ ZeroWrt Mediatek 固件发布
 
           > 基于开源项目构建，专为高性能与稳定性优化
 
