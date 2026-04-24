@@ -429,6 +429,7 @@ jobs:
         elif [ "${{ github.event.inputs.DEVICE }}" = "Qihoo_360T7" ]; then
           SOC=mt7981 BOARD=360t7 VERSION=2025 ./build.sh
         fi
+        echo "status=success" >> $GITHUB_OUTPUT
         echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
 
     - name: 整理文件
