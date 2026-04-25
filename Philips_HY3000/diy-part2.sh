@@ -33,8 +33,8 @@ git clone --depth=1 https://github.com/ZeroWrt/openwrt_helloworld package/new/he
 # 主题
 git clone --depth=1 -b openwrt-25.12 https://github.com/sbwml/luci-theme-argon package/new/luci-theme-argon
 git clone --depth=1 -b master https://github.com/MomoFlora/luci-theme-design package/new/luci-theme-design
-sed -i 's/luci-theme-bootstrap/luci-theme-design/g' feeds/luci/collections/luci-light/Makefile
-sed -i 's/luci-theme-bootstrap/luci-theme-design/g' feeds/luci/collections/luci-nginx/Makefile
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci-light/Makefile
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci-nginx/Makefile
 
 # bash
 sed -i 's#ash#bash#g' package/base-files/files/etc/passwd
