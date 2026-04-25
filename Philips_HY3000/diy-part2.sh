@@ -24,6 +24,7 @@ git clone --depth=1 -b v5 https://github.com/sbwml/luci-app-mosdns package/new/m
 git clone --depth=1 -b main https://github.com/sbwml/luci-app-openlist2 package/new/openlist
 git clone --depth=1 -b main https://github.com/MomoFlora/luci-app-adguardhome package/new/adguardhome
 git clone --depth=1 -b master https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
+git clone --depth=1 -b master https://github.com/muink/luci-app-netspeedtest package/new/luci-app-netspeedtest
 git_sparse_clone main https://github.com/sbwml/openwrt_pkgs luci-app-socat luci-app-ota luci-app-wolplus otahelper bash-completion
 
 # 科学上网插件
