@@ -12,4 +12,4 @@
 # ===============================================================================
 
 # 添加信息源
-echo 'src-git qmodem https://github.com/FUjr/modem_feeds.git' >>feeds.conf.default
+# echo 'src-git qmodem https://github.com/FUjr/modem_feeds.git' >>feeds.conf.default
