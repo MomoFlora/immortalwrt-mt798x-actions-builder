@@ -32,6 +32,7 @@ git clone --depth=1 https://github.com/ZeroWrt/openwrt_helloworld package/new/he
 
 # 主题
 git clone --depth=1 -b openwrt-25.12 https://github.com/sbwml/luci-theme-argon package/new/luci-theme-argon
+cp -f $GITHUB_WORKSPACE/General/bg.webp package/new/luci-theme-argon/luci-theme-argon/htdocs/luci-static/argon/img/bg.webp
 git clone --depth=1 -b master https://github.com/MomoFlora/luci-theme-design package/new/luci-theme-design
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci-light/Makefile
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci-nginx/Makefile
