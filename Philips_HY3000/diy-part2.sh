@@ -24,7 +24,7 @@ git clone --depth=1 -b v5 https://github.com/sbwml/luci-app-mosdns package/new/m
 git clone --depth=1 -b main https://github.com/sbwml/luci-app-openlist2 package/new/openlist
 git clone --depth=1 -b main https://github.com/MomoFlora/luci-app-adguardhome package/new/adguardhome
 git clone --depth=1 -b master https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
-git clone --depth=1 https://github.com/MomoFlora/luci-app-socat package/new/luci-app-socat
+git_sparse_clone master https://github.com/sbwml/openwrt_pkgs luci-app-socat luci-app-ota luci-app-wolplus otahelper bash-completion
 
 # 科学上网插件
 git clone --depth=1 https://github.com/ZeroWrt/openwrt_helloworld package/new/helloworld
@@ -34,6 +34,17 @@ git clone --depth=1 -b openwrt-25.12 https://github.com/sbwml/luci-theme-argon p
 git clone --depth=1 -b master https://github.com/MomoFlora/luci-theme-design package/new/luci-theme-design
 sed -i 's/luci-theme-bootstrap/luci-theme-design/g' feeds/luci/collections/luci-light/Makefile
 sed -i 's/luci-theme-bootstrap/luci-theme-design/g' feeds/luci/collections/luci-nginx/Makefile
+
+# 应用补丁
+pushd feeds/luci
+    patch -p1 < $GITHUB_WORKSPACE/General/0001-luci-mod-system-add-modal-overlay-dialog-to-reboot.patch
+    patch -p1 < $GITHUB_WORKSPACE/General/0002-luci-mod-status-displays-actual-process-memory-usage.patch
+    patch -p1 < $GITHUB_WORKSPACE/General/0003-luci-mod-status-storage-index-applicable-only-to-val.patch
+    patch -p1 < $GITHUB_WORKSPACE/General/0004-luci-mod-status-firewall-disable-legacy-firewall-rul.patch
+    patch -p1 < $GITHUB_WORKSPACE/General/0005-luci-mod-system-add-refresh-interval-setting.patch
+    patch -p1 < $GITHUB_WORKSPACE/General/0006-luci-mod-system-mounts-add-docker-directory-mount-po.patch
+    patch -p1 < $GITHUB_WORKSPACE/General/0007-luci-mod-system-add-ucitrack-luci-mod-system-zram.js.patch
+popd
 
 # 设置版本号
 sed -i 's/VERSION_DIST:=.*/VERSION_DIST:=$(if $(VERSION_DIST),$(VERSION_DIST),ZeroWrt)/' include/version.mk
