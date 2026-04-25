@@ -26,6 +26,7 @@ git clone --depth=1 -b main https://github.com/MomoFlora/luci-app-adguardhome pa
 git clone --depth=1 -b master https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
 git clone --depth=1 -b master https://github.com/muink/luci-app-netspeedtest package/new/luci-app-netspeedtest
 git_sparse_clone main https://github.com/sbwml/openwrt_pkgs luci-app-socat luci-app-ota luci-app-wolplus otahelper bash-completion
+sed -i 's/services/network/g' package/new/luci-app-socat/root/usr/share/luci/menu.d/luci-app-socat.json
 
 # 科学上网插件
 git clone --depth=1 https://github.com/ZeroWrt/openwrt_helloworld package/new/helloworld
