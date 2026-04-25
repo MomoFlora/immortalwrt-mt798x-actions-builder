@@ -46,6 +46,10 @@ pushd feeds/luci
     patch -p1 < $GITHUB_WORKSPACE/General/0007-luci-mod-system-add-ucitrack-luci-mod-system-zram.js.patch
 popd
 
+# bash
+sed -i 's#ash#bash#g' package/base-files/files/etc/passwd
+sed -i '\#export ENV=/etc/shinit#a export HISTCONTROL=ignoredups' package/base-files/files/etc/profile
+
 # 设置版本号
 sed -i 's/VERSION_DIST:=.*/VERSION_DIST:=$(if $(VERSION_DIST),$(VERSION_DIST),ZeroWrt)/' include/version.mk
 sed -i 's/VERSION_MANUFACTURER:=.*/VERSION_MANUFACTURER:=$(if $(VERSION_MANUFACTURER),$(VERSION_MANUFACTURER),ZeroWrt)/' include/version.mk
